@@ -12,7 +12,21 @@
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonar.host.url>https://sonarqube.1pf.cz</sonar.host.url>
+        <sonar.projectKey>{SONAR_PROJECT_KEY}</sonar.projectKey>
     </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -27,5 +41,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 
 </project>
