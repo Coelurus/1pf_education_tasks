@@ -13,7 +13,7 @@
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.host.url>https://sonarqube.1pf.cz</sonar.host.url>
-        <sonar.projectKey>{SONAR_PROJECT_KEY}</sonar.projectKey>
+        <sonar.projectKey>education-1pf-fv</sonar.projectKey>
     </properties>
 
     <build>
@@ -31,13 +31,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>RELEASE</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>5.10.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
