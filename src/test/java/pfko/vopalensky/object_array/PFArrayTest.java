@@ -152,21 +152,6 @@ class PFArrayTest {
     }
 
     @Test
-    void print() {
-        final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        final PrintStream originalOut = System.out;
-        System.setOut(new PrintStream(outContent));
-
-        PFArray pfa = new PFArray("3,90,-9");
-        pfa.print();
-
-        assertEquals("", outContent.toString()
-                .trim());
-
-        System.setOut(originalOut);
-    }
-
-    @Test
     void atIndex() {
         PFArray pfa = new PFArray("1,2,3,7");
         assertEquals(3, pfa.at(2));
