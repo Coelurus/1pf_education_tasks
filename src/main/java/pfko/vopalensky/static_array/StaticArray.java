@@ -1,9 +1,9 @@
 package pfko.vopalensky.static_array;
 
 import java.io.PrintStream;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class StaticArray {
     private static final int MAX_RANDOM_ARRAY_LENGTH = 20;
     private static final int MAX_RANDOM_ARRAY_VALUE = 20;
-    private static final Random random = new Random();
+    private static final SecureRandom random = new SecureRandom();
     private static final PrintStream out = System.out;
     private static final String PRINT_DELIMITER = ", ";
     public static final String AGREE_ON_MULTIPLE = "YES";
@@ -260,11 +260,11 @@ public class StaticArray {
                 break;
             case "3":
                 out.print("The largest number is ");
-                max(array);
+                out.println(max(array));
                 break;
             case "4":
                 out.print("The smallest number is ");
-                min(array);
+                out.println(min(array));
                 break;
             case "5":
                 array = resolveRemove(array);
