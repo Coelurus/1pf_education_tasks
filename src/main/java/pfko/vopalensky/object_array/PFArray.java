@@ -103,9 +103,19 @@ public class PFArray {
     }
 
     /**
+     * Remove only first occurrence of number from array
+     * @param number to be removed
+     * @return reference to this array
+     */
+    public PFArray remove(int number) {
+        return remove(number, false);
+    }
+
+    /**
      * Remove number(s) from array. Removes only one or all instances.
      *
      * @param number Number to be removed from an array.
+     * @param removeAll If true then remove all occurrences of number
      * @return reference to this array
      */
     public PFArray remove(int number, boolean removeAll) {
