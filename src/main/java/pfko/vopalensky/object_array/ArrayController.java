@@ -223,7 +223,7 @@ public class ArrayController {
                 deleteArray();
                 break;
             default:
-1                break;
+                break;
         }
     }
 
