@@ -1,9 +1,10 @@
 ### Repository for completing education tasks
 
 #### Progress
-- Static array almost completed
-- To add:
-  - More tests
-  - Connect with SonarQube
-- Issue:
-  - Not to forget to use pull-request
+
+- Static array completed - waiting for review
+
+- Object array
+    - PFArray methods done
+    - Tests written
+    - TODO: interaction with user

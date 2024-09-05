@@ -1,6 +1,7 @@
 package pfko.vopalensky.object_array;
 
 import java.io.PrintStream;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -8,7 +9,7 @@ import java.util.Random;
 public class PFArray {
     private static final int MAX_RANDOM_ARRAY_LENGTH = 20;
     private static final int MAX_RANDOM_ARRAY_VALUE = 20;
-    private static final Random random = new Random();
+    private static final SecureRandom random = new SecureRandom();
     private static final String DELIMITER = ", ";
     private static final PrintStream out = System.out;
     private static final int EXTEND_COEFFICIENT = 2;
@@ -233,18 +234,5 @@ public class PFArray {
      */
     public int[] toArray() {
         return Arrays.copyOf(data, count);
-    }
-
-    /**
-     * Starts and controls the communication between program and user.
-     */
-    public static void run() {
-        PFArray pfa = new PFArray("-33, 1,5,7, 33");
-        pfa.add(8);
-        pfa.add(7).add(8).remove(7, true);
-        pfa.remove(8, true);
-        pfa.print();
-        pfa.regenerate().print();
-
     }
 }
