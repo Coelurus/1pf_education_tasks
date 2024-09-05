@@ -1,5 +1,5 @@
 package pfko.vopalensky.static_array;
-/*
+
 import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayInputStream;
@@ -101,5 +101,3 @@ class StaticArrayTest {
     }
 }
 
-
- */
