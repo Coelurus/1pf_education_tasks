@@ -173,6 +173,9 @@ public class StaticArray {
         return array;
     }
 
+    /**
+     * Ends the program.
+     */
     private static void exit() {
         System.exit(0);
     }

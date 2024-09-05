@@ -165,5 +165,19 @@ class PFArrayTest {
 
         System.setOut(originalOut);
     }
+
+    @Test
+    void atIndex() {
+        PFArray pfa = new PFArray("1,2,3,7");
+        assertEquals(3, pfa.at(2));
+    }
+
+    @Test
+    void atOutOfBounds() {
+        PFArray pfa = new PFArray("1,2,3,7");
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            pfa.at(100);
+        });
+    }
 }
 
