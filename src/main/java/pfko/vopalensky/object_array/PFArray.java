@@ -3,14 +3,12 @@ package pfko.vopalensky.object_array;
 import java.io.PrintStream;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Random;
-
 
 public class PFArray {
     private static final int MAX_RANDOM_ARRAY_LENGTH = 20;
     private static final int MAX_RANDOM_ARRAY_VALUE = 20;
     private static final SecureRandom random = new SecureRandom();
-    private static final String DELIMITER = ", ";
+    private static final String DELIMITER = "\t";
     private static final PrintStream out = System.out;
     private static final int EXTEND_COEFFICIENT = 2;
 
@@ -105,6 +103,7 @@ public class PFArray {
 
     /**
      * Remove only first occurrence of number from array
+     *
      * @param number to be removed
      * @return reference to this array
      */
@@ -115,7 +114,7 @@ public class PFArray {
     /**
      * Remove number(s) from array. Removes only one or all instances.
      *
-     * @param number Number to be removed from an array.
+     * @param number    Number to be removed from an array.
      * @param removeAll If true then remove all occurrences of number
      * @return reference to this array
      */

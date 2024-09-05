@@ -1,10 +1,7 @@
 package pfko.vopalensky.object_array;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public class ArrayController {
     private static List<PFArray> arrayList = new ArrayList<>();
@@ -23,7 +20,7 @@ public class ArrayController {
     private static void printHelp() {
         out.println("""
                                 
-                You have following options:\s
+                You have following options:
                     [1] Create new array
                     [2] Choose existing array
                     [3] Switch to array with max sum
@@ -33,10 +30,18 @@ public class ArrayController {
         if (Objects.isNull(currentArray)) {
             out.println("You do not have any chosen array at the moment.");
         } else {
-            out.print("And your current array is: ");
+            out.print("""
+                    Or you can work with current array:
+                        [a] Add number
+                        [b] Remove first chosen number
+                        [c] Remove all chosen numbers
+                        [d] Regenerate
+                        [e] Delete array
+                    And your current array is:
+                        """);
             currentArray.print();
         }
-        out.print("What do you do: ");
+        out.print("\nWhat do you do: ");
     }
 
     /**
@@ -50,17 +55,24 @@ public class ArrayController {
      * Generates new array either randomly or manually based on users choice.
      */
     private static void createNewArray() {
-        out.println("""
-                You have these options:\s
+        out.print("""
+                You have these options:
                     [1] Fill your array with random numbers.
-                    [2] Define your own numbers to be added.""");
+                    [2] Define your own numbers to be added.
+                Which do you choose:\s""");
 
         Scanner in = new Scanner(System.in);
         String choice = in.nextLine();
         PFArray newArray;
         if (Objects.equals(choice, "2")) {
             out.println("Write contents of your array separated by commas.");
-            newArray = new PFArray(in.nextLine());
+            try {
+                newArray = new PFArray(in.nextLine());
+            } catch (Exception ignored) {
+                out.println("Invalid input!");
+                return;
+            }
+
         } else {
             newArray = new PFArray();
         }
@@ -77,16 +89,30 @@ public class ArrayController {
             out.print("\t[" + (i + 1) + "] ");
             arrayList.get(i).print();
         }
-        out.println("Write number of array you want to choose: ");
+        out.print("Which do you want to choose: ");
     }
 
+    /**
+     * Lets user choose array that will be set as a current one.
+     */
     private static void chooseArray() {
+        if (arrayList.isEmpty()) {
+            printEmptyList();
+            return;
+        }
         printArrayList();
         Scanner in = new Scanner(System.in);
-        int chosenArrayIdx = in.nextInt();
-        currentArray = arrayList.get(chosenArrayIdx - 1);
+        try {
+            int chosenArrayIdx = in.nextInt();
+            currentArray = arrayList.get(chosenArrayIdx - 1);
+        } catch (Exception ignored) {
+            out.println("Invalid option! Current array has not changed");
+        }
     }
 
+    /**
+     * Find and sets the current array to the one with the biggest sum.
+     */
     private static void findMaxSumArray() {
         if (arrayList.isEmpty()) {
             printEmptyList();
@@ -101,6 +127,9 @@ public class ArrayController {
         currentArray = maxSum;
     }
 
+    /**
+     * Find and sets the current array to the one with the smallest sum.
+     */
     private static void findMinSumArray() {
         if (arrayList.isEmpty()) {
             printEmptyList();
@@ -115,6 +144,57 @@ public class ArrayController {
         currentArray = minSum;
     }
 
+    /**
+     * Ends the program.
+     */
+    private static void exit() {
+        System.exit(0);
+    }
+
+    /**
+     * Resolves user's command for adding number into current array.
+     */
+    private static void addNumber() {
+        Scanner in = new Scanner(System.in);
+        out.print("Which number do you want to add: ");
+        try {
+            currentArray.add(in.nextInt());
+        } catch (InputMismatchException ignored) {
+            out.println("That is not a number!");
+        }
+    }
+
+    /**
+     * Resolves user's command for removing number(s) from current array.
+     */
+    private static void removeNumber(boolean removeAll) {
+        Scanner in = new Scanner(System.in);
+        out.print("Which number do you want to delete: ");
+        try {
+            currentArray.remove(in.nextInt(), removeAll);
+        } catch (InputMismatchException ignored) {
+            out.println("That is not a number!");
+        }
+    }
+
+    /**
+     * Resolves user's command for regenerating current array.
+     */
+    private static void regenerateArray() {
+        currentArray.regenerate();
+    }
+
+    /**
+     * Resolves user's command for deleting current array.
+     */
+    private static void deleteArray() {
+        arrayList.remove(currentArray);
+        currentArray = currentArray.clear();
+    }
+
+    /**
+     * Decides which action user has chosen and calls corresponding method.
+     */
     private static void resolveMainMenuChoice() {
         Scanner in = new Scanner(System.in);
         switch (in.nextLine()) {
@@ -141,17 +221,25 @@ public class ArrayController {
             case "5":
                 exit();
                 break;
+            case "a":
+                addNumber();
+                break;
+            case "b":
+                removeNumber(false);
+                break;
+            case "c":
+                removeNumber(true);
+                break;
+            case "d":
+                regenerateArray();
+                break;
+            case "e":
+                deleteArray();
+                break;
             default:
                 out.println("Invalid option...");
                 break;
         }
-    }
-
-    /**
-     * Ends the program.
-     */
-    private static void exit() {
-        System.exit(0);
     }
 
     /**
