@@ -50,13 +50,6 @@ public class ArrayController {
     }
 
     /**
-     * Prints out information about not having saved any arrays.
-     */
-    private static void printEmptyList() {
-        out.println("You have no arrays...");
-    }
-
-    /**
      * Generates new array either randomly or manually based on users choice.
      */
     private static void createNewArray() {
@@ -186,16 +179,21 @@ public class ArrayController {
     private static boolean resolveMainMenuChoice() {
         Scanner in = new Scanner(System.in);
         String option = in.nextLine();
+
+        if (resolveNoArraysCommand(option)) {
+            return END_PROGRAM;
+        }
+
         if (arrayList.isEmpty()) {
-            if (resolveNoArraysCommand(option)) return END_PROGRAM;
-        } else if (Objects.isNull(currentArray)) {
+            return !END_PROGRAM;
+        } else {
             resolveNoCurrentArrayCommand(option);
-            if (resolveNoArraysCommand(option)) return END_PROGRAM;
+        }
+
+        if (Objects.isNull(currentArray)) {
+            return !END_PROGRAM;
         } else {
             resolveCurrentArrayCommand(option);
-            resolveNoCurrentArrayCommand(option);
-            if (resolveNoArraysCommand(option)) return END_PROGRAM;
-
         }
         return !END_PROGRAM;
     }
@@ -266,7 +264,6 @@ public class ArrayController {
             case "0":
                 return true;
             default:
-                printEmptyList();
                 break;
         }
         return false;
