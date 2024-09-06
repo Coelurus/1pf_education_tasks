@@ -7,7 +7,6 @@ public class ArrayController {
     private static final List<PFArray> arrayList = new ArrayList<>();
     private static final PrintStream out = System.out;
     private static PFArray currentArray;
-    private static final String INVALID_OPTION_MESSAGE = "Invalid option...";
     private static final boolean END_PROGRAM = true;
 
     private ArrayController() {
