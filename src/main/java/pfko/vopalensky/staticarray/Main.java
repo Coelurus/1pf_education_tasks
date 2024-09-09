@@ -1,4 +1,4 @@
-package pfko.vopalensky.static_array;
+package pfko.vopalensky.staticarray;
 
 public class Main {
     public static void main(String[] args) {
