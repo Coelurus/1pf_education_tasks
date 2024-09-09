@@ -39,10 +39,10 @@ class FileAppTest {
         fa.load("/pfko/vopalensky/filesandcollections/happy.csv");
         Assertions.assertEquals(
                 "Fallout Tactics: Brotherhood of Steel",
-                fa.getGameByGenre("Strategy").get(0).getTitle());
+                fa.getGameByGenre("Strategy").get(0).title());
         Assertions.assertEquals(
                 "Mount & Blade: Warband",
-                fa.getGameByGenre("Strategy").get(1).getTitle());
+                fa.getGameByGenre("Strategy").get(1).title());
 
     }
 
@@ -94,9 +94,9 @@ class FileAppTest {
         List<Game> simulators = fa.getSimulatorGames();
         Assertions.assertEquals(
                 "Mount & Blade: Warband",
-                simulators.get(0).getTitle());
+                simulators.get(0).title());
         Assertions.assertEquals(
                 "KnightOut",
-                simulators.get(1).getTitle());
+                simulators.get(1).title());
     }
 }
