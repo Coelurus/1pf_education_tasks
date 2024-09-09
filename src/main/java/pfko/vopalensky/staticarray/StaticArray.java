@@ -1,4 +1,4 @@
-package pfko.vopalensky.static_array;
+package pfko.vopalensky.staticarray;
 
 import java.io.PrintStream;
 import java.security.SecureRandom;

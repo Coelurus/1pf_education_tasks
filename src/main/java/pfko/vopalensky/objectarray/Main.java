@@ -1,7 +1,7 @@
-package pfko.vopalensky.object_array;
+package pfko.vopalensky.objectarray;
 
 public class Main {
     public static void main(String[] args) {
-        ArrayController.run();
+        ArrayApp.run();
     }
 }

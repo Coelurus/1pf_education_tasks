@@ -1,4 +1,4 @@
-package pfko.vopalensky.object_array;
+package pfko.vopalensky.objectarray;
 
 import java.io.PrintStream;
 import java.security.SecureRandom;
@@ -184,7 +184,7 @@ public class PFArray {
     /**
      * Deletes whole array and all elements in it.
      *
-     * @return reference to this array which is deleted. Thus, it is null.
+     * @return null to symbolize deletion of array.
      */
     public PFArray clear() {
         count = 0;

@@ -1,18 +1,22 @@
-package pfko.vopalensky.object_array;
+package pfko.vopalensky.objectarray;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
 
-public class ArrayController {
+/**
+ * Takes care of communicating with user and let him work with arrays.
+ */
+public class ArrayApp {
     private static final List<PFArray> arrayList = new ArrayList<>();
     private static final PrintStream out = System.out;
     private static PFArray currentArray;
-    private static final boolean END_PROGRAM = true;
 
-    private ArrayController() {
-
+    private ArrayApp() {
     }
-
 
     /**
      * Prints out information about possible commands.
@@ -50,8 +54,10 @@ public class ArrayController {
 
     /**
      * Generates new array either randomly or manually based on users choice.
+     *
+     * @return newly created array or null if user passes invalid input
      */
-    private static void createNewArray() {
+    private static PFArray createNewArray() {
         out.print("""
                 You have these options:
                     [1] Fill your array with random numbers.
@@ -67,14 +73,13 @@ public class ArrayController {
                 newArray = new PFArray(in.nextLine());
             } catch (Exception ignored) {
                 out.println("Invalid input!");
-                return;
+                newArray = null;
             }
 
         } else {
             newArray = new PFArray();
         }
-        arrayList.add(newArray);
-        currentArray = newArray;
+        return newArray;
     }
 
     /**
@@ -91,42 +96,48 @@ public class ArrayController {
 
     /**
      * Lets user choose array that will be set as a current one.
+     *
+     * @return Chosen array or null if user chooses invalid index of array.
      */
-    private static void chooseArray() {
+    private static PFArray chooseArray() {
         printArrayList();
         Scanner in = new Scanner(System.in);
         try {
             int chosenArrayIdx = in.nextInt();
-            currentArray = arrayList.get(chosenArrayIdx - 1);
+            return arrayList.get(chosenArrayIdx - 1);
         } catch (Exception ignored) {
-            out.println("Invalid option! Current array has not changed");
+            return null;
         }
     }
 
     /**
      * Find and sets the current array to the one with the biggest sum.
+     *
+     * @return array with max sum
      */
-    private static void findMaxSumArray() {
+    private static PFArray findMaxSumArray() {
         PFArray maxSum = arrayList.get(0);
         for (PFArray pfa : arrayList) {
             if (pfa.sum() > maxSum.sum()) {
                 maxSum = pfa;
             }
         }
-        currentArray = maxSum;
+        return maxSum;
     }
 
     /**
      * Find and sets the current array to the one with the smallest sum.
+     *
+     * @return array with min sum
      */
-    private static void findMinSumArray() {
+    private static PFArray findMinSumArray() {
         PFArray minSum = arrayList.get(0);
         for (PFArray pfa : arrayList) {
             if (pfa.sum() < minSum.sum()) {
                 minSum = pfa;
             }
         }
-        currentArray = minSum;
+        return minSum;
     }
 
     /**
@@ -163,11 +174,12 @@ public class ArrayController {
     }
 
     /**
-     * Resolves user's command for deleting current array.
+     * Resolves user's command for deleting current array. Setting it to null.
+     *
+     * @return null to symbolize deleted array
      */
-    private static void deleteArray() {
-        arrayList.remove(currentArray);
-        currentArray = currentArray.clear();
+    private static PFArray deleteArray() {
+        return currentArray.clear();
     }
 
     /**
@@ -180,21 +192,21 @@ public class ArrayController {
         String option = in.nextLine();
 
         if (resolveNoArraysCommand(option)) {
-            return END_PROGRAM;
+            return Boolean.TRUE;
         }
 
         if (arrayList.isEmpty()) {
-            return !END_PROGRAM;
+            return Boolean.FALSE;
         } else {
             resolveNoCurrentArrayCommand(option);
         }
 
         if (Objects.isNull(currentArray)) {
-            return !END_PROGRAM;
+            return Boolean.FALSE;
         } else {
             resolveCurrentArrayCommand(option);
         }
-        return !END_PROGRAM;
+        return Boolean.FALSE;
     }
 
     /**
@@ -217,7 +229,8 @@ public class ArrayController {
                 regenerateArray();
                 break;
             case "e":
-                deleteArray();
+                arrayList.remove(currentArray);
+                currentArray = deleteArray();
                 break;
             default:
                 break;
@@ -225,22 +238,27 @@ public class ArrayController {
     }
 
     /**
-     * Resolves commands that are runnable when some arrays exists.
+     * Resolves commands that are runnable when some arrays exist.
      *
      * @param option users input
      */
     private static void resolveNoCurrentArrayCommand(String option) {
         switch (option) {
             case "2":
-                chooseArray();
+                PFArray chosenArray = chooseArray();
+                if (!Objects.isNull(chosenArray)) {
+                    currentArray = chosenArray;
+                } else {
+                    out.println("Invalid option! Current array has not changed.");
+                }
                 break;
             case "3":
-                findMaxSumArray();
+                currentArray = findMaxSumArray();
                 out.print("This is the array with max sum: ");
                 currentArray.print();
                 break;
             case "4":
-                findMinSumArray();
+                currentArray = findMinSumArray();
                 out.print("This is the array with min sum: ");
                 currentArray.print();
                 break;
@@ -258,7 +276,13 @@ public class ArrayController {
     private static boolean resolveNoArraysCommand(String option) {
         switch (option) {
             case "1":
-                createNewArray();
+                PFArray newlyCreated = createNewArray();
+                if (!Objects.isNull(newlyCreated)) {
+                    currentArray = newlyCreated;
+                    arrayList.add(newlyCreated);
+                } else {
+                    out.println("Array has not been created.");
+                }
                 break;
             case "0":
                 return true;
@@ -272,10 +296,10 @@ public class ArrayController {
      * Starts and controls the communication between program and user.
      */
     public static void run() {
-        boolean kill = false;
-        while (!kill) {
+        boolean endProgram = false;
+        while (!endProgram) {
             printHelp();
-            kill = resolveMainMenuChoice();
+            endProgram = resolveMainMenuChoice();
         }
     }
 }
