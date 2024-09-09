@@ -21,6 +21,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * Class for loading data about games from input file and exporting queries
+ * into output files.
+ */
 public class FileApp {
     private final List<Game> games = new ArrayList<>();
     private static final PrintStream out = System.out;
@@ -50,9 +54,10 @@ public class FileApp {
     private static final String GAME_COUNT = "game_count";
 
     /**
-     * Resolving location of columns inside the input file.
+     * Stores information about csv files, position of columns
+     * and their headers.
      */
-    enum ColumnOrder {
+    enum csvProperties {
         TITLE(0, "title"),
         RELEASED(1, "released"),
         DEVELOPERS(2, "developers"),
@@ -62,7 +67,7 @@ public class FileApp {
         private final int value;
         private final String header;
 
-        ColumnOrder(final int value, final String header) {
+        csvProperties(final int value, final String header) {
             this.value = value;
             this.header = header;
         }
@@ -90,7 +95,11 @@ public class FileApp {
         parseInputFile(pathToFile);
     }
 
-
+    /**
+     * Getter for attribute games.
+     *
+     * @return list of games stored in app
+     */
     public List<Game> getGames() {
         return games;
     }
@@ -121,22 +130,23 @@ public class FileApp {
      * @param csvLine input line from csv file.
      * @return new Game object
      */
-    private Game parseLineToGame(String csvLine) throws InvalidFileFormatException {
+    private Game parseLineToGame(String csvLine)
+            throws InvalidFileFormatException {
         String[] lineFragments =
                 csvLine.split(REGEX_FOR_COLUMN_SEPARATION);
 
-        if (lineFragments.length != ColumnOrder.values().length) {
+        if (lineFragments.length != csvProperties.values().length) {
             throw new InvalidFileFormatException();
         }
 
-        String title = lineFragments[ColumnOrder.TITLE.getValue()];
-        String released = lineFragments[ColumnOrder.RELEASED.getValue()];
+        String title = lineFragments[csvProperties.TITLE.getValue()];
+        String released = lineFragments[csvProperties.RELEASED.getValue()];
         List<String> developers =
-                parseColumn(lineFragments[ColumnOrder.DEVELOPERS.getValue()]);
+                parseColumn(lineFragments[csvProperties.DEVELOPERS.getValue()]);
         List<String> publishers =
-                parseColumn(lineFragments[ColumnOrder.PUBLISHERS.getValue()]);
+                parseColumn(lineFragments[csvProperties.PUBLISHERS.getValue()]);
         List<String> genres =
-                parseColumn(lineFragments[ColumnOrder.GENRES.getValue()]);
+                parseColumn(lineFragments[csvProperties.GENRES.getValue()]);
         return new Game(title, released, developers, publishers, genres);
     }
 
@@ -249,7 +259,8 @@ public class FileApp {
                      = new BufferedWriter(new FileWriter(outputFilePath))) {
             String delimiter = "";
             for (String genre : getAllGenres()) {
-                bw.write(delimiter + genre);
+                bw.write(delimiter);
+                bw.write(genre);
                 delimiter = DELIMITER;
             }
         } catch (IOException e) {
@@ -268,13 +279,15 @@ public class FileApp {
     public void createSimulatorFile(String outputFilePath) throws IOException {
         try (BufferedWriter bw
                      = new BufferedWriter(new FileWriter(outputFilePath))) {
-            bw.write(ColumnOrder.RELEASED.getHeader());
+            bw.write(csvProperties.RELEASED.getHeader());
             bw.write(DELIMITER);
-            bw.write(ColumnOrder.TITLE.getHeader());
+            bw.write(csvProperties.TITLE.getHeader());
             bw.newLine();
 
             for (Game game : getSimulatorGames()) {
-                bw.write(game.released() + DELIMITER + game.title());
+                bw.write(game.released());
+                bw.write(DELIMITER);
+                bw.write(game.title());
                 bw.newLine();
             }
 
@@ -295,7 +308,7 @@ public class FileApp {
     public void createPublishersFile(String outputFilePath) throws IOException {
         try (BufferedWriter bw
                      = new BufferedWriter(new FileWriter(outputFilePath))) {
-            bw.write(ColumnOrder.PUBLISHERS.getHeader());
+            bw.write(csvProperties.PUBLISHERS.getHeader());
             bw.write(DELIMITER);
             bw.write(GAME_COUNT);
             bw.newLine();
