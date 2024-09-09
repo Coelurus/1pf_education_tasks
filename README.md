@@ -9,4 +9,7 @@
     - Tests written
     - Interaction with user implemented
 
-- Files (_in progress_)
+- Files (_waiting for review_)
+    - Game reading methods done
+    - File writing methods done
+    - Method testing done

@@ -4,7 +4,9 @@ import pfko.vopalensky.filesandcollections.exceptions.EmptyFileException;
 import pfko.vopalensky.filesandcollections.exceptions.InvalidFileFormatException;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -20,16 +22,59 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class FileApp {
-    private static final String FILE_PATH =
-            "/pfko/vopalensky/filesandcollections/games.csv";
-    public static final int COLUMN_COUNT = 5;
-    public static final int TITLE_IDX = 0;
-    public static final int RELEASED_IDX = 1;
-    public static final int DEVELOPERS_IDX = 2;
-    public static final int PUBLISHERS_IDX = 3;
-    public static final int GENRES_IDX = 4;
     private final List<Game> games = new ArrayList<>();
     private static final PrintStream out = System.out;
+
+    // Found inspiration on StackOverflow
+    // Refactored (changed * to {0,4}) myself
+    // so SonarLint would stop screaming at me
+    //
+    // Explanatory notes for me
+    // ,            ... comma
+    // (?=...)      ... positive lookahead
+    // [^"]*        ... matches anything that is not double quotes
+    // "            ... double quote
+    // [^"]*        ... anything that is not double quotes again
+    // "            ... double quote
+    // {0,5}        ... everything is repeated 0...5 times
+    // [^"]*        ... anything that is not double quotes again
+    // $            ... end of line
+    //,(?=([^"]*"[^"]*"){0,5}[^"]*$)
+    private static final int REGEX_THRESHOLD = 5;
+    private static final String REGEX_FOR_COLUMN_SEPARATION =
+            ",(?=([^\"]*\"[^\"]*\"){0," + REGEX_THRESHOLD + "}[^\"]*$)";
+    private static final String DELIMITER = ",";
+    private static final String TBA_TAG = "TBA";
+    private static final String PROBLEM_ON_CREATING_OUTPUT_MESSAGE =
+            "Problem appeared during creating file...";
+    private static final String GAME_COUNT = "game_count";
+
+    /**
+     * Resolving location of columns inside the input file.
+     */
+    enum ColumnOrder {
+        TITLE(0, "title"),
+        RELEASED(1, "released"),
+        DEVELOPERS(2, "developers"),
+        PUBLISHERS(3, "publishers"),
+        GENRES(4, "genres");
+
+        private final int value;
+        private final String header;
+
+        ColumnOrder(final int value, final String header) {
+            this.value = value;
+            this.header = header;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public String getHeader() {
+            return header;
+        }
+    }
 
 
     /**
@@ -60,9 +105,9 @@ public class FileApp {
         if (column.isEmpty()) {
             return new ArrayList<>();
         } else if (column.charAt(0) == '"') {
-            return Stream.of(column.substring(1, column.length() - 1)
+            return Stream.of(column
                     .replace("\"", "")
-                    .split(",")).map(String::strip).toList();
+                    .split(DELIMITER)).map(String::strip).toList();
         } else {
             List<String> columnData = new ArrayList<>();
             columnData.add(column);
@@ -78,17 +123,20 @@ public class FileApp {
      */
     private Game parseLineToGame(String csvLine) throws InvalidFileFormatException {
         String[] lineFragments =
-                csvLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+                csvLine.split(REGEX_FOR_COLUMN_SEPARATION);
 
-        if (lineFragments.length != COLUMN_COUNT) {
+        if (lineFragments.length != ColumnOrder.values().length) {
             throw new InvalidFileFormatException();
         }
 
-        String title = lineFragments[TITLE_IDX];
-        String released = lineFragments[RELEASED_IDX];
-        List<String> developers = parseColumn(lineFragments[DEVELOPERS_IDX]);
-        List<String> publishers = parseColumn(lineFragments[PUBLISHERS_IDX]);
-        List<String> genres = parseColumn(lineFragments[GENRES_IDX]);
+        String title = lineFragments[ColumnOrder.TITLE.getValue()];
+        String released = lineFragments[ColumnOrder.RELEASED.getValue()];
+        List<String> developers =
+                parseColumn(lineFragments[ColumnOrder.DEVELOPERS.getValue()]);
+        List<String> publishers =
+                parseColumn(lineFragments[ColumnOrder.PUBLISHERS.getValue()]);
+        List<String> genres =
+                parseColumn(lineFragments[ColumnOrder.GENRES.getValue()]);
         return new Game(title, released, developers, publishers, genres);
     }
 
@@ -136,7 +184,7 @@ public class FileApp {
     public List<String> getAllGenres() {
         Set<String> genres = new HashSet<>();
         for (Game game : games) {
-            genres.addAll(game.getGenres());
+            genres.addAll(game.genres());
         }
         List<String> orderedList = new ArrayList<>(genres);
         Collections.sort(orderedList);
@@ -160,18 +208,25 @@ public class FileApp {
      */
     public List<Game> getGameByGenre(String genre) {
         return Stream.of(games.toArray(new Game[0]))
-                .filter(game -> game.getGenres().contains(genre))
+                .filter(game -> game.genres().contains(genre))
                 .sorted(Comparator.comparingInt(
-                        a -> (Objects.equals(a.getReleased(), "TBA")
+                        a -> (Objects.equals(a.released(), TBA_TAG)
                                 ? Integer.MAX_VALUE
-                                : Integer.parseInt(a.getReleased()))))
+                                : Integer.parseInt(a.released()))))
                 .toList();
     }
 
+    /**
+     * Goes through all games saved in app and counts number of published games
+     * for each publisher.
+     *
+     * @return List of entries where key is name of publisher and value
+     * is number of published games. List is in descending order.
+     */
     public List<Map.Entry<String, Integer>> getPublisherCounts() {
         Map<String, Integer> publisherCounts = new HashMap<>();
         for (Game game : games) {
-            for (String publisher : game.getPublishers()) {
+            for (String publisher : game.publishers()) {
                 publisherCounts.merge(publisher, 1, Integer::sum);
             }
         }
@@ -181,4 +236,80 @@ public class FileApp {
         list.sort(Comparator.comparingInt(Map.Entry::getValue));
         return list.reversed();
     }
+
+    /**
+     * Creates file where is comma separated list of all genres from games.
+     *
+     * @param outputFilePath path to a file where genres should be written
+     * @throws IOException When there is a problem with creating or writing
+     *                     into new file.
+     */
+    public void createGenreFile(String outputFilePath) throws IOException {
+        try (BufferedWriter bw
+                     = new BufferedWriter(new FileWriter(outputFilePath))) {
+            String delimiter = "";
+            for (String genre : getAllGenres()) {
+                bw.write(delimiter + genre);
+                delimiter = DELIMITER;
+            }
+        } catch (IOException e) {
+            out.println(PROBLEM_ON_CREATING_OUTPUT_MESSAGE);
+            throw e;
+        }
+    }
+
+    /**
+     * Creates a csv file of simulator games with two columns - release, title
+     *
+     * @param outputFilePath path to a file where simulators should be written
+     * @throws IOException When there is a problem with creating or writing
+     *                     into new file.
+     */
+    public void createSimulatorFile(String outputFilePath) throws IOException {
+        try (BufferedWriter bw
+                     = new BufferedWriter(new FileWriter(outputFilePath))) {
+            bw.write(ColumnOrder.RELEASED.getHeader());
+            bw.write(DELIMITER);
+            bw.write(ColumnOrder.TITLE.getHeader());
+            bw.newLine();
+
+            for (Game game : getSimulatorGames()) {
+                bw.write(game.released() + DELIMITER + game.title());
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            out.println(PROBLEM_ON_CREATING_OUTPUT_MESSAGE);
+            throw e;
+        }
+    }
+
+    /**
+     * Creates a csv file of publishers with two columns - publisher name,
+     * number of published games
+     *
+     * @param outputFilePath path to a file where publishers should be written
+     * @throws IOException When there is a problem with creating or writing
+     *                     into new file.
+     */
+    public void createPublishersFile(String outputFilePath) throws IOException {
+        try (BufferedWriter bw
+                     = new BufferedWriter(new FileWriter(outputFilePath))) {
+            bw.write(ColumnOrder.PUBLISHERS.getHeader());
+            bw.write(DELIMITER);
+            bw.write(GAME_COUNT);
+            bw.newLine();
+            for (Map.Entry<String, Integer> publisher : getPublisherCounts()) {
+                bw.write(publisher.getKey());
+                bw.write(DELIMITER);
+                bw.write(publisher.getValue().toString());
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            out.println(PROBLEM_ON_CREATING_OUTPUT_MESSAGE);
+            throw e;
+        }
+    }
 }
+
