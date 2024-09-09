@@ -213,6 +213,15 @@ public class PFArray {
     }
 
     /**
+     * Check whether array contains any elements.
+     *
+     * @return true if array is empty. False otherwise.
+     */
+    public boolean isEmpty() {
+        return count == 0;
+    }
+
+    /**
      * Returns element from array at given index
      *
      * @param idx of element to return
