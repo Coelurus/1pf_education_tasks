@@ -210,6 +210,14 @@ public class ArrayApp {
     }
 
     /**
+     * Takes care of removing current array.
+     */
+    private static void resolveRemovingArray() {
+        arrayList.remove(currentArray);
+        currentArray = deleteArray();
+    }
+
+    /**
      * Resolves commands that are runnable only with current array set.
      *
      * @param option users input
@@ -221,16 +229,21 @@ public class ArrayApp {
                 break;
             case "b":
                 removeNumber(false);
+                if (currentArray.isEmpty()) {
+                    resolveRemovingArray();
+                }
                 break;
             case "c":
                 removeNumber(true);
+                if (currentArray.isEmpty()) {
+                    resolveRemovingArray();
+                }
                 break;
             case "d":
                 regenerateArray();
                 break;
             case "e":
-                arrayList.remove(currentArray);
-                currentArray = deleteArray();
+                resolveRemovingArray();
                 break;
             default:
                 break;
