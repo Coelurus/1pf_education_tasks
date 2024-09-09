@@ -2,9 +2,11 @@
 
 #### Progress
 
-- Static array completed - waiting for review
+- Static array (_completed_)
 
-- Object array
+- Object array (_issues from mt fixed_)
     - PFArray methods done
     - Tests written
-    - TODO: interaction with user
+    - Interaction with user implemented
+
+- Files (_coming soon_)
