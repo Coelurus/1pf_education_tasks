@@ -1,0 +1,447 @@
+openapi: 3.0.3
+info:
+  title: Java WEB I - SpringBoot and REST API
+  description: |-
+    This is an educational task number 4.
+  version: 1.0.0
+tags:
+  - name: offer
+    description: Everything about Offers
+  - name: board
+    description: Look through offers and edit them
+
+paths:
+  /offer:
+    post:
+      tags:
+        - offer
+      summary: Create new offer
+      description: Add a new offer
+      operationId: addOffer
+      requestBody:
+        description: Create a new offer
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Offer"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+      security:
+        - offer_board_auth:
+            - write:offers
+            - read:offers
+    put:
+      tags:
+        - offer
+      summary: Update existing offer
+      description: Update an existing offer by Id
+      operationId: updateOffer
+      requestBody:
+        description: Update an existing offer on board
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Offer"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Offer not found
+        "422":
+          description: Validation exception
+      security:
+        - offer_board_auth:
+            - write:offers
+            - read:offers
+
+  /offer/{offerId}:
+    get:
+      tags:
+        - offer
+      summary: Find an offer by id
+      description: Returns a single offer
+      operationId: getOfferById
+      parameters:
+        - name: offerId
+          in: path
+          description: Id of an offer to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Offer not found
+      security:
+        - offer_board_auth:
+            - read:offers
+
+    delete:
+      tags:
+        - offer
+      summary: Deletes an offer
+      description: Deletes an offer by id
+      operationId: deleteOffer
+      parameters:
+        - name: offerId
+          in: path
+          description: Offer id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "400":
+          description: Invalid offer id
+      security:
+        - offer_board_auth:
+            - write:offers
+            - read:offers
+    post:
+      tags:
+        - offer
+      summary: Updates an offer on the board
+      description: Updates an offer with form data
+      operationId: updateOfferWithForm
+      parameters:
+        - name: offerId
+          in: path
+          description: Id of an offer that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: name
+          in: query
+          description: Name of an offer that needs to be updated
+          schema:
+            type: string
+        - name: cost
+          in: query
+          description: Cost of an offer that needs to be updated
+          schema:
+            type: integer
+            format: int64
+        - name: services
+          in: query
+          description: Services in an offer that needs to be updated
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Service/properties/id"
+        - name: created
+          in: query
+          description: Id of worker/team that created this offer
+          schema:
+            $ref: "#/components/schemas/WorkForce/properties/workId"
+      responses:
+        "400":
+          description: Invalid input
+      security:
+        - offer_board_auth:
+            - write:offers
+            - read:offers
+
+  /board/offers:
+    get:
+      tags:
+        - board
+      summary: Returns offers
+      description: Returns a list of offers
+      operationId: getOffers
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offer"
+  /board/order:
+    post:
+      tags:
+        - board
+      summary: Place an order for an offer
+      description: Place a new irder for an offer on a board
+      operationId: placeOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        "200":
+          description: succesfful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+  /board/order/{orderId}:
+    get:
+      tags:
+        - board
+      summary: Find purchase order by Id
+      description: Find purchase order by Id
+      operationId: getOrderById
+      parameters:
+        - name: orderId
+          in: path
+          description: Id of order to be fetched
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Order not found
+    delete:
+      tags:
+        - board
+      summary: Delete purchase order
+      description: Delete purchase order by order ID
+      operationId: deleteOrder
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of the order that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Order not found
+    post:
+      tags:
+        - board
+      summary: Update order state
+      description: Update an existing order with form data
+      operationId: updateOrderWithForm
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of an order that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: complete
+          in: query
+          description: State of completition of an order
+          schema:
+            type: boolean
+        - name: payed
+          in: query
+          description: Payment status of an order
+          schema:
+            type: boolean
+      responses:
+        "400":
+          description: Invalid input
+
+components:
+  schemas:
+    Service:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 3
+        name:
+          type: string
+          example: Local breach
+        description:
+          type: string
+          example: We locally connect and do wonders.
+
+    Offer:
+      required:
+        - id
+        - name
+        - cost
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 43
+        name:
+          type: string
+          example: Security check
+        cost:
+          type: integer
+          format: int64
+          example: 30000
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/Service/properties/id"
+        created:
+          $ref: "#/components/schemas/WorkForce/properties/workId"
+          example: 3
+
+    Order:
+      type: object
+      required:
+        - id
+        - offerId
+        - complete
+        - payed
+        - customerId
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+
+        offerId:
+          $ref: "#/components/schemas/Offer/properties/id"
+
+        customerId:
+          $ref: "#/components/schemas/Customer/properties/customerId"
+
+        complete:
+          type: boolean
+          example: false
+
+        payed:
+          type: boolean
+          example: false
+
+    Person:
+      type: object
+      required:
+        - name
+        - phone
+        - email
+      properties:
+        name:
+          type: string
+          example: Mardi Mareda
+        phone:
+          type: string
+          example: "734 345 567"
+        email:
+          type: string
+          example: "mardi@seznam.cz"
+
+    Customer:
+      allOf:
+        - $ref: "#/components/schemas/Person"
+        - type: object
+      required:
+        - customerId
+      properties:
+        customerId:
+          type: integer
+          format: int64
+          example: 3
+
+    WorkForce:
+      type: object
+      required:
+        - workId
+      properties:
+        workId:
+          type: integer
+          format: int64
+          example: 2
+
+    Employee:
+      allOf:
+        - $ref: "#/components/schemas/WorkForce"
+        - $ref: "#/components/schemas/Person"
+
+    SupplierTeam:
+      allOf:
+        - $ref: "#/components/schemas/WorkForce"
+        - type: object
+          required:
+            - leader
+          properties:
+            leader:
+              type: integer
+              format: int64
+              example: 4
+              # $ref: "#/components/schemas/Employee/properties/workId"
+            members:
+              type: array
+              items:
+                # $ref: "#/components/schemas/Employee/properties/workId"
+                type: integer
+                format: int64
+                example: 3
+
+  requestBodies:
+    Offer:
+      description: Offer object that needs to be added to the board
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Offer"
+
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
+
+    offer_board_auth:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            write:offers: modify offers on board
+            read:offers: read offers from board
+          authorizationUrl: "TODO"
